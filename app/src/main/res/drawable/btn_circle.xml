@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:state_pressed="false" >   <!-- 按钮未点击-->
+        <shape>
+           <stroke android:width="0.8dp" android:color="@color/gray" /><!-- 边框颜色，边框大小-->
+           <solid  android:color="@color/gray" /> <!-- 填充的颜色：这里设置背景透明 -->
+           <corners android:radius="200dip" /><!-- android:radius 弧形的半径 -->
+           <padding android:bottom="5dp"
+                        android:top="5dp"/>
+          </shape>
+    </item>
+</selector>

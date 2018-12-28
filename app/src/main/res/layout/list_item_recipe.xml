@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:paddingTop="8dp"
+    android:paddingBottom="8dp"
+    android:background="@drawable/item_border">
+
+    <Button
+        android:id="@+id/list_item_recipe_compound_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginRight="8dp"
+        android:layout_alignParentRight="true"
+        android:text="@string/compound"
+        android:padding="4dp"/>
+    <TextView
+        android:id="@+id/list_item_recipe_title_text_view"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_toLeftOf="@id/list_item_recipe_compound_button"
+        android:textStyle="bold"
+        android:padding="4dp"
+        android:layout_marginLeft="8dp"
+        tools:text="Recipe Title"/>
+    <TextView
+        android:id="@+id/list_item_recipe_num_text_view_hint"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/list_item_recipe_title_text_view"
+        android:textStyle="bold"
+        android:padding="4dp"
+        android:layout_marginLeft="8dp"
+        android:text="@string/recipe_having_num"/>
+    <TextView
+        android:id="@+id/list_item_recipe_num_text_view"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/list_item_recipe_title_text_view"
+        android:layout_toRightOf="@id/list_item_recipe_num_text_view_hint"
+        android:textStyle="bold"
+        android:padding="4dp"
+        tools:text="Num"/>
+</RelativeLayout>

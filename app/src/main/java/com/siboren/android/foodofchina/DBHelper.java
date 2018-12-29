@@ -60,7 +60,7 @@ public class DBHelper extends SQLiteOpenHelper {
         db.execSQL(CREATE_TABLE_Recipe);
         //Bag表
         String CREATE_TABLE_Bag="CREATE TABLE if not exists "+ Bag.TABLE+"("
-                +Bag.KEY_uid+" INT PRIMARY KEY,"
+                +Bag.KEY_uid+" INT,"
                 +Bag.KEY_item_name+" TEXT, "
                 +Bag.KEY_num+" INT)";
         Log.d("Helper_", "onCreate: "+CREATE_TABLE_Bag );

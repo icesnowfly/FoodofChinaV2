@@ -5,7 +5,7 @@ public class Bag {
 
     public int uid;
     public String item_name;
-    public String num;
+    public String num;//默认为0
 
     public static final String KEY_uid="uid";
     public static final String KEY_item_name="item_name";

@@ -4,9 +4,16 @@ import java.util.Date;
 import java.util.UUID;
 
 public class Recipe {
+    public static final String TABLE="recipe";
+
     private UUID mId;
     private String mTitle;
     private int mNum;
+
+    public static final String KEY_mId="mId";
+    public static final String KEY_mTitle="mTitle";
+    public static final String KEY_mNum="mNum";
+
 
     public Recipe(){
         mId = UUID.randomUUID();

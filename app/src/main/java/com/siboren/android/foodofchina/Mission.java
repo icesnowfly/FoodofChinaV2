@@ -4,6 +4,9 @@ import java.util.Date;
 import java.util.UUID;
 
 public class Mission {
+
+    public static final String TABLE="mission";
+
     private UUID mId;
     private String mTitle;
     private Date mDate;
@@ -11,6 +14,14 @@ public class Mission {
     private String mAward;
     private double mDistance;
     private boolean mSolved;
+
+    public static final String KEY_UUID="mId";
+    public static final String KEY_mTitle="mTitle";
+    public static final String KEY_mDate="mDate";
+    public static final String KEY_mNeedFood="mNeedFood";
+    public static final String KEY_mAward="mAward";
+    public static final String KEY_mDistance="mDistance";
+    public static final String KEY_mSolved="mSolved";
 
     public Mission(){
         //生成唯一ID

@@ -10,6 +10,7 @@ public class User {
     public static final String KEY_password="password";
     public static final String KEY_gender="gender";
     public static final String KEY_level="level";
+    public static final String KEY_exp="exp";
 
     //属性
     public int ID;
@@ -17,5 +18,6 @@ public class User {
     public String password;
     public int gender;
     public int level;
+    public int exp;
 
 }

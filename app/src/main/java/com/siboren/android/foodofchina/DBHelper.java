@@ -58,6 +58,20 @@ public class DBHelper extends SQLiteOpenHelper {
                 +Recipe.KEY_mNum+" INT)";
         Log.d("Helper_", "onCreate: "+CREATE_TABLE_Recipe );
         db.execSQL(CREATE_TABLE_Recipe);
+        //Bag表
+        String CREATE_TABLE_Bag="CREATE TABLE if not exists "+ Bag.TABLE+"("
+                +Bag.KEY_uid+" INT PRIMARY KEY,"
+                +Bag.KEY_item_name+" TEXT, "
+                +Bag.KEY_num+" INT)";
+        Log.d("Helper_", "onCreate: "+CREATE_TABLE_Bag );
+        db.execSQL(CREATE_TABLE_Bag);
+        //CookBook表
+        String CREATE_TABLE_CookBook="CREATE TABLE if not exists "+ CookBook.TABLE+"("
+                +CookBook.KEY_title+" TEXT PRIMARY KEY,"
+                +CookBook.KEY_material+" TEXT, "
+                +CookBook.KEY_num+" INT)";
+        Log.d("Helper_", "onCreate: "+CREATE_TABLE_CookBook );
+        db.execSQL(CREATE_TABLE_CookBook);
     }
 
     @Override

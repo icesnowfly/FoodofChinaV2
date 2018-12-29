@@ -42,7 +42,7 @@ public class DBHelper extends SQLiteOpenHelper {
         db.execSQL(CREATE_TABLE_User);
         //Mission表
         String CREATE_TABLE_Mission="CREATE TABLE if not exists "+ Missions.TABLE+"("
-                +Missions.KEY_mId+" TEXT,"
+                +Missions.KEY_mId+" TEXT PRIMARY KEY,"
                 +Missions.KEY_mTitle+" TEXT, "
                 +Missions.KEY_mDate+" Data, "
                 +Missions.KEY_mNeedFood+" TEXT,"
@@ -73,6 +73,13 @@ public class DBHelper extends SQLiteOpenHelper {
                 +CookBook.KEY_num+" INT)";
         Log.d("Helper_", "onCreate: "+CREATE_TABLE_CookBook );
         db.execSQL(CREATE_TABLE_CookBook);
+        //MissionAward表
+        String CREATE_TABLE_MissionAward="CREATE TABLE if not exists "+ MissionAward.TABLE+"("
+                +MissionAward.KEY_title+" TEXT PRIMARY KEY,"
+                +MissionAward.KEY_item_name+" TEXT, "
+                +MissionAward.KEY_num+" INT)";
+        Log.d("Helper_", "onCreate: "+CREATE_TABLE_MissionAward );
+        db.execSQL(CREATE_TABLE_MissionAward);
     }
 
     @Override

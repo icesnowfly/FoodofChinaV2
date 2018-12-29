@@ -1,4 +1,4 @@
 package com.siboren.android.foodofchina;
 
-public class MissionApi {
+public class UserMission {
 }

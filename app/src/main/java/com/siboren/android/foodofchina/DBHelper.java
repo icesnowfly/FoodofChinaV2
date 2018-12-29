@@ -41,19 +41,20 @@ public class DBHelper extends SQLiteOpenHelper {
         Log.d("Helper_", "onCreate: "+CREATE_TABLE_User );
         db.execSQL(CREATE_TABLE_User);
         //Mission表
-        String CREATE_TABLE_Mission="CREATE TABLE if not exists "+ Mission.TABLE+"("
-                +Mission.KEY_UUID+" INT PRIMARY KEY,"
-                +Mission.KEY_mTitle+" TEXT, "
-                +Mission.KEY_mDate+" Data, "
-                +Mission.KEY_mNeedFood+" TEXT,"
-                +Mission.KEY_mAward+" TEXT,"
-                +Mission.KEY_mDistance+" DOUBLE,"
-                +Mission.KEY_mSolved+" INT)";
+        String CREATE_TABLE_Mission="CREATE TABLE if not exists "+ Missions.TABLE+"("
+                +Missions.KEY_mId+" TEXT,"
+                +Missions.KEY_mTitle+" TEXT, "
+                +Missions.KEY_mDate+" Data, "
+                +Missions.KEY_mNeedFood+" TEXT,"
+                +Missions.KEY_mAward+" TEXT,"
+                +Missions.KEY_mDistance+" DOUBLE,"
+                +Missions.KEY_mSolved+" INT)";
         Log.d("Helper_", "onCreate: "+CREATE_TABLE_Mission );
         db.execSQL(CREATE_TABLE_Mission);
         //Recipe表
         String CREATE_TABLE_Recipe="CREATE TABLE if not exists "+ Recipe.TABLE+"("
-                +Recipe.KEY_mId+" INT PRIMARY KEY,"
+                +Recipe.KEY_mId+" TEXT PRIMARY KEY,"
+                +Recipe.KEY_UID+" TEXT,"
                 +Recipe.KEY_mTitle+" TEXT, "
                 +Recipe.KEY_mNum+" INT)";
         Log.d("Helper_", "onCreate: "+CREATE_TABLE_Recipe );

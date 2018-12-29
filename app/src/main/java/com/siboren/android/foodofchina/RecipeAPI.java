@@ -18,7 +18,8 @@ public class RecipeAPI {
         //打开连接，写入数据
         SQLiteDatabase db=dbHelper.getWritableDatabase();
         ContentValues values=new ContentValues();
-        values.put(Recipe.KEY_mId,recipe.getId());
+        values.put(Recipe.KEY_mId, String.valueOf(recipe.getId()));
+        values.put(Recipe.KEY_UID,recipe.UID);
         values.put(Recipe.KEY_mTitle,recipe.getTitle());
         values.put(Recipe.KEY_mNum,recipe.getNum());
         //
@@ -30,7 +31,7 @@ public class RecipeAPI {
 
     public void delete(Recipe recipe){
         SQLiteDatabase db=dbHelper.getWritableDatabase();
-        db.delete(Recipe.TABLE,Recipe.KEY_mId+"=?", new String[]{recipe.getId()});
+        db.delete(Recipe.TABLE,Recipe.KEY_mId+"=?", new String[]{String.valueOf(recipe.getId())});
         db.close();
     }
     public void update(Recipe recipe){//增减配方数量
@@ -49,11 +50,12 @@ public class RecipeAPI {
         recipe.setNum(num);
         cursor.close();
         
-        values.put(Recipe.KEY_mId,recipe.getId());
+        values.put(Recipe.KEY_mId, String.valueOf(recipe.getId()));
+        values.put(Recipe.KEY_UID,recipe.UID);
         values.put(Recipe.KEY_mTitle,recipe.getTitle());
         values.put(Recipe.KEY_mNum,recipe.getNum());
 
-        db.update(Recipe.TABLE,values,Recipe.KEY_mId+"=?", new String[]{recipe.getId()});
+        db.update(Recipe.TABLE,values,Recipe.KEY_mId+"=?", new String[]{String.valueOf(recipe.getId())});
         db.close();
     }
     public boolean check_material(Recipe recipe){//判断材料是否足够
@@ -61,7 +63,7 @@ public class RecipeAPI {
         CookBookAPI cookBookAPI=new CookBookAPI(mcontext);
         CookBook cookBook=new CookBook(recipe.getTitle());
         BagAPI bagAPI=new BagAPI(mcontext);
-        Bag bag=new Bag(recipe.getId());
+        Bag bag=new Bag(recipe.UID);
 
         item=cookBookAPI.get_cookbooks(cookBook);
         int i=0;

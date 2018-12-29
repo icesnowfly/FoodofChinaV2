@@ -14,9 +14,10 @@ import static android.content.ContentValues.TAG;
 
 public class UserAPI {
     private DBHelper dbHelper;
-
+    private Context mcontext;
     public UserAPI(Context context){
         dbHelper=new DBHelper(context);
+        mcontext=context;
     }
 
     public int insert(User User){
@@ -66,7 +67,7 @@ public class UserAPI {
         Cursor cursor=db.rawQuery(selectQuery,new String[]{String.valueOf(Id)});
         if(cursor.moveToFirst()){
             do{
-                User.ID =cursor.getInt(cursor.getColumnIndex(User.KEY_ID));
+                User.ID =cursor.getString(cursor.getColumnIndex(User.KEY_ID));
                 User.name =cursor.getString(cursor.getColumnIndex(User.KEY_name));
                 User.password  =cursor.getString(cursor.getColumnIndex(User.KEY_password));
                 User.gender =cursor.getInt(cursor.getColumnIndex(User.KEY_gender));
@@ -79,18 +80,19 @@ public class UserAPI {
     }
     public void insert_initial(){
         User user_temp=new User();
-        user_temp.ID=1511;
+        user_temp.ID="1511";
         user_temp.name="aaa";
         user_temp.password="123456";
         user_temp.gender=1;
         user_temp.level=1;
+        user_temp.exp=0;
         insert(user_temp);
     }
     public int login(int ID,String password){
         User user_temp=new User();
         user_temp=getUserById(ID);
         Log.d("api", "login: "+user_temp.ID+"\t"+user_temp.password +"\t"+password);
-        if (user_temp.ID==0){
+        if (user_temp.ID==null){
             return 2;//用户不存在
         }
         if(user_temp.password.equals(password)){

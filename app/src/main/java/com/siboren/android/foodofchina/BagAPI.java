@@ -46,6 +46,7 @@ public class BagAPI {
         cursor.moveToFirst();
         int num=cursor.getInt(cursor.getColumnIndex(Bag.KEY_num));
         bag.num+=num;
+        cursor.close();
 
         values.put(Bag.KEY_uid,bag.uid);
         values.put(Bag.KEY_item_name,bag.item_name);

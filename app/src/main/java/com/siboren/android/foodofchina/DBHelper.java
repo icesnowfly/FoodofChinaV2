@@ -32,7 +32,7 @@ public class DBHelper extends SQLiteOpenHelper {
         Log.d("Helper_", "onCreate: ");
         //User表
         String CREATE_TABLE_User="CREATE TABLE if not exists "+ User.TABLE+"("
-                +User.KEY_ID+" INT PRIMARY KEY,"
+                +User.KEY_ID+" TEXT PRIMARY KEY,"
                 +User.KEY_name+" TEXT, "
                 +User.KEY_password+" TEXT, "
                 +User.KEY_gender+" INT,"

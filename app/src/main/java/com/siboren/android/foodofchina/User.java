@@ -13,7 +13,7 @@ public class User {
     public static final String KEY_exp="exp";
 
     //属性
-    public int ID;
+    public String ID;
     public String name;
     public String password;
     public int gender;

@@ -6,7 +6,7 @@ import java.util.UUID;
 public class Recipe {
     public static final String TABLE="recipe";
 
-    private UUID mId;
+    private String mId;
     private String mTitle;
     private int mNum;
 
@@ -15,8 +15,8 @@ public class Recipe {
     public static final String KEY_mNum="mNum";
 
 
-    public Recipe(){
-        mId = UUID.randomUUID();
+    public Recipe(String user_name){
+        mId = user_name;
         mNum = 0;
     }
 
@@ -28,7 +28,7 @@ public class Recipe {
         this.mNum = mNum;
     }
 
-    public UUID getId() {
+    public String getId() {
         return mId;
     }
 

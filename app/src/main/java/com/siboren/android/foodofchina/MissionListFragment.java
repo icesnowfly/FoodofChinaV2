@@ -89,7 +89,7 @@ public class MissionListFragment extends Fragment {
             mNeedFoodTextView.setText(mMission.getNeedFood());
             mAwardTextView.setText(mMission.getAward());
             mDistanceTextView.setText(mMission.getDistance());
-            if (!mMission.isSolved()) {
+            if (!mMission.isAccepted()) {
                 mAcceptButton.setText(getString(R.string.accept));
                 mAcceptButton.setActivated(false);
                 mAcceptButton.setBackground(getResources().getDrawable(R.drawable.btn_circle_colored));
@@ -101,8 +101,9 @@ public class MissionListFragment extends Fragment {
             mAcceptButton.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    if (!mMission.isSolved()) {
-                        mMission.setSolved(true);
+                    if (!mMission.isAccepted()) {
+
+                        mMission.setAccepted(true);
                         Toast.makeText(getActivity(),R.string.mission_accept,Toast.LENGTH_SHORT).show();
                     }
                     else
@@ -113,7 +114,7 @@ public class MissionListFragment extends Fragment {
                         builder.setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
                             @Override
                             public void onClick(DialogInterface dialog, int which) {
-                                mMission.setSolved(false);
+                                mMission.setAccepted(false);
                                 Toast.makeText(getActivity(),R.string.mission_cancel,Toast.LENGTH_SHORT).show();
                                 updateUI();
                             }

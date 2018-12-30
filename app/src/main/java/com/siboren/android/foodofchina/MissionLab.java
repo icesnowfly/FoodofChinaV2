@@ -1,14 +1,17 @@
 package com.siboren.android.foodofchina;
 
 import android.content.Context;
+import android.database.sqlite.SQLiteDatabase;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
+import com.siboren.android.foodofchina.database.MissionBaseHelper;
 
 public class MissionLab {
     private static MissionLab sMissionLab;
-    private List<Mission> mMissions;
+    private Context mContext;
+    private SQLiteDatabase mDatabase;
 
     public static MissionLab get(Context context){
         if (sMissionLab == null){
@@ -18,31 +21,24 @@ public class MissionLab {
     }
 
     private MissionLab(Context context){
-        mMissions = new ArrayList<>();
-        Mission mission = new Mission();
-        mission.setTitle("Mission #1");
-        mission.setDistance(2.4);
-        mission.setNeedFood("food #1");
-        mission.setAward("money x 3000"+"\nexp x 5000");
-        mission.setSolved(false);
-        mMissions.add(mission);
+        mContext = context.getApplicationContext();
+        mDatabase = new MissionBaseHelper(mContext)
+                .getWritableDatabase();
     }
 
     public List<Mission> getMissions(){
-        return mMissions;
+        return new ArrayList<>();
     }
 
     public Mission getMission(UUID id){
-        for (Mission mission:mMissions){
-            if (mission.getId().equals(id)){
-                return mission;
-            }
-        }
+
         return null;
     }
 
     public void addMission(Mission mission)
     {
-        mMissions.add(mission);
+
     }
+
+    public int getSize(){ return 1;}
 }

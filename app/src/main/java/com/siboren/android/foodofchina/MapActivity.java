@@ -4,6 +4,9 @@ import android.Manifest;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.Matrix;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
@@ -11,22 +14,31 @@ import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
+import android.view.ViewGroupOverlay;
 import android.widget.Button;
 import android.widget.Toast;
 
 import com.baidu.location.BDAbstractLocationListener;
 import com.baidu.location.BDLocation;
+import com.baidu.location.BDNotifyListener;
 import com.baidu.location.LocationClient;
 import com.baidu.location.LocationClientOption;
 import com.baidu.mapapi.CoordType;
 import com.baidu.mapapi.SDKInitializer;
 import com.baidu.mapapi.map.BaiduMap;
+import com.baidu.mapapi.map.BitmapDescriptor;
+import com.baidu.mapapi.map.BitmapDescriptorFactory;
 import com.baidu.mapapi.map.MapStatusUpdate;
 import com.baidu.mapapi.map.MapStatusUpdateFactory;
 import com.baidu.mapapi.map.MapView;
+import com.baidu.mapapi.map.Marker;
+import com.baidu.mapapi.map.MarkerOptions;
 import com.baidu.mapapi.map.MyLocationConfiguration;
 import com.baidu.mapapi.map.MyLocationData;
+import com.baidu.mapapi.map.Overlay;
+import com.baidu.mapapi.map.OverlayOptions;
 import com.baidu.mapapi.model.LatLng;
+import com.baidu.mapapi.search.core.PoiInfo;
 import com.baidu.mapapi.search.core.SearchResult;
 import com.baidu.mapapi.search.poi.OnGetPoiSearchResultListener;
 import com.baidu.mapapi.search.poi.PoiAddrInfo;
@@ -37,8 +49,12 @@ import com.baidu.mapapi.search.poi.PoiIndoorResult;
 import com.baidu.mapapi.search.poi.PoiNearbySearchOption;
 import com.baidu.mapapi.search.poi.PoiResult;
 import com.baidu.mapapi.search.poi.PoiSearch;
+import com.baidu.mapapi.search.poi.PoiSortType;
+import com.baidu.mapapi.utils.DistanceUtil;
 
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 
 public class MapActivity extends AppCompatActivity implements MyOrientationListener.OnOrientationListener{
@@ -52,13 +68,16 @@ public class MapActivity extends AppCompatActivity implements MyOrientationListe
     private PoiSearch mPoiSearch;
     private OnGetPoiSearchResultListener poiListener;
     private Button mRecipeButton,mMissionButton,mSearchButton;
-    private MissionLab mMissionLab;
+    private BitmapDescriptor bitmap;
+    private MissionLab mMissionLab = MissionLab.get(this);
+    private List<Mission> MissionCan = new ArrayList<>();
 
     private Boolean isFirstLocate=true;
     private float mCurrentAccracy;
     private double mCurrentLantitude;
     private double mCurrentLongitude;
     private int mXDirection;
+    private int searchN;
     public LocationClient mlocation;
     private MyLocationData.Builder builder;
     private MyOrientationListener myOrientationListener;
@@ -74,6 +93,9 @@ public class MapActivity extends AppCompatActivity implements MyOrientationListe
         //初始化方向传感器
         myOrientationListener = new MyOrientationListener(this);
         myOrientationListener.setOnOrientationListener(this);
+        //生成Marker图标
+         bitmap = BitmapDescriptorFactory
+                .fromBitmap(getMapMarker(BitmapFactory.decodeResource(getResources(),R.drawable.ic_redmarker)));
         //获取地图控件
         mMapView = findViewById(R.id.mapView);
         mBaiduMap = mMapView.getMap();
@@ -100,36 +122,82 @@ public class MapActivity extends AppCompatActivity implements MyOrientationListe
         mSearchButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                if (mMissionLab.getSize()>=5)
+                {
+                    Toast.makeText(getApplication(), "任务数量已达上限！", Toast.LENGTH_SHORT).show();
+                    return;
+                }
+                searchN=0;
+                Toast.makeText(getApplication(), "请稍等...", Toast.LENGTH_LONG).show();
                 LatLng point = new LatLng(mCurrentLantitude,mCurrentLongitude);
-                String key = "银行";
+                String key = "美食";
                 PoiNearbySearchOption nearbySearchOption = new PoiNearbySearchOption();
                 nearbySearchOption.location(point);
                 nearbySearchOption.keyword(key);
-                nearbySearchOption.radius(50000);
+                nearbySearchOption.radius(2000);
                 nearbySearchOption.pageNum(1);
+                nearbySearchOption.radiusLimit(true);
+                mPoiSearch.searchNearby(nearbySearchOption);
+                key = "娱乐";
+                nearbySearchOption.keyword(key);
+                mPoiSearch.searchNearby(nearbySearchOption);
+                key = "超市";
+                nearbySearchOption.keyword(key);
+                mPoiSearch.searchNearby(nearbySearchOption);
+                key = "便利店";
+                nearbySearchOption.keyword(key);
+                mPoiSearch.searchNearby(nearbySearchOption);
+                key = "公交站";
+                nearbySearchOption.keyword(key);
+                mPoiSearch.searchNearby(nearbySearchOption);
+                key = "公司";
+                nearbySearchOption.keyword(key);
+                mPoiSearch.searchNearby(nearbySearchOption);
+                key = "住宅";
+                nearbySearchOption.keyword(key);
+                mPoiSearch.searchNearby(nearbySearchOption);
+                key = "店铺";
+                nearbySearchOption.keyword(key);
                 mPoiSearch.searchNearby(nearbySearchOption);
             }
         });
-        mMissionLab= MissionLab.get(this);
         //Poi检索
         mPoiSearch = PoiSearch.newInstance();
         poiListener = new OnGetPoiSearchResultListener() {
             @Override
             public void onGetPoiResult(PoiResult poiResult) {
-                if ((poiResult!=null) && poiResult.error == PoiResult.ERRORNO.NO_ERROR)
-                {
-                    List<PoiAddrInfo> PoiAddrInfos = poiResult.getAllAddr();
-                    for (PoiAddrInfo mInfo:PoiAddrInfos) {
+                if ((poiResult!=null) && poiResult.error == PoiResult.ERRORNO.NO_ERROR) {
+                    LatLng mPoint;
+                    LatLng position = new LatLng(mCurrentLantitude, mCurrentLongitude);
+                    List<PoiInfo> PoiInfos = poiResult.getAllPoi();
+                    for (PoiInfo mInfo : PoiInfos) {
+                        mPoint = mInfo.getLocation();
                         Mission mission = new Mission();
                         mission.setTitle(mInfo.name);
-                        mission.setSolved(false);
+                        mission.setLocation(mPoint);
+                        mission.setDistance(DistanceUtil.getDistance(mPoint, position));
                         mission.setNeedFood("Fish");
-                        mission.setDistance(1.0);
                         mission.setAward("money * 5000 元");
-                        mMissionLab.addMission(mission);
-                      }
-                }else{
-                    Toast.makeText(getApplication(), "搜索不到你需要的信息！", Toast.LENGTH_SHORT).show();
+                        MissionCan.add(mission);
+                    }
+                    searchN++;
+                    if (searchN>=8) {
+                        if (MissionCan.size() == 0) {
+                            Toast.makeText(getApplication(), "附近没有可接受的任务！", Toast.LENGTH_SHORT).show();
+                            return;
+                        }
+                        Collections.sort(MissionCan);
+                        int r;
+                        int size = mMissionLab.getSize();
+                        for (int i = 0; i < 5 - size; i++) {
+                            r = (int) (Math.random() * MissionCan.size());
+                            mMissionLab.addMission(MissionCan.get(r));
+                            MissionCan.remove(r);
+                            if (MissionCan.size() == 0) break;
+                        }
+                        Toast.makeText(getApplication(), "已添加任务", Toast.LENGTH_SHORT).show();
+                        MissionCan.clear();
+                    }
                 }
             }
 
@@ -152,6 +220,43 @@ public class MapActivity extends AppCompatActivity implements MyOrientationListe
 
         //申请权限
         initPermission();
+    }
+
+    private void updateMarker(){
+        MissionLab mMissionLab = MissionLab.get(getApplicationContext());
+        List<Mission> mMissions = mMissionLab.getMissions();
+        for (Mission mMission : mMissions)
+        {
+            if (mMission.isAccepted()) {
+                if (mMission.getMarker() == null)
+                    setMarker(mMission);
+            } else if (mMission.getMarker() != null) {
+                mMission.getMarker().remove();
+                mMission.setMarker(null);
+            }
+        }
+    }
+
+    private void setMarker(Mission mMission){
+       // BitmapDescriptor bitmap = BitmapDescriptorFactory
+       //         .fromResource(R.drawable.ic_redmarker);
+        OverlayOptions option = new MarkerOptions()
+                .position(mMission.getLocation())
+                .icon(bitmap)
+                .perspective(true);
+        mMission.setMarker((Marker)mBaiduMap.addOverlay(option));
+    }
+
+    private Bitmap getMapMarker(Bitmap bm){
+        int width = bm.getWidth();
+        int height = bm.getHeight();
+        int newWidth = 128;
+        int newHeight = 128;
+        float scaleWidth = (float) newWidth/width;
+        float scaleHeight = (float) newHeight/height;
+        Matrix matrix = new Matrix();
+        matrix.postScale(scaleWidth,scaleHeight);
+        return Bitmap.createBitmap(bm,0,0,width,height,matrix,true);
     }
 
     private void initPermission() {
@@ -226,7 +331,9 @@ public class MapActivity extends AppCompatActivity implements MyOrientationListe
         mBaiduMap.setMyLocationData(locationData);
         // 设置自定义图标
         //BitmapDescriptor mCurrentMarker = BitmapDescriptorFactory.fromResource(R.drawable.arrow);
-        MyLocationConfiguration configuration = new MyLocationConfiguration(MyLocationConfiguration.LocationMode.NORMAL, true, null);
+        MyLocationConfiguration configuration =
+                new MyLocationConfiguration(MyLocationConfiguration.LocationMode.NORMAL,
+                        true, null);
         mBaiduMap.setMyLocationConfiguration(configuration);
     }
 
@@ -240,6 +347,27 @@ public class MapActivity extends AppCompatActivity implements MyOrientationListe
             if (bdLocation.getLocType() == BDLocation.TypeGpsLocation || bdLocation.getLocType() == BDLocation.TypeNetWorkLocation) {
                 //设置地图显示
                 navigateTo(bdLocation);
+            }
+            List<Mission> missions = mMissionLab.getMissions();
+            if (missions.size()>0) {
+                LatLng mission_pos;
+                boolean isChanged=false;
+                LatLng mypos = new LatLng(mCurrentLantitude,mCurrentLongitude);
+                double distance;
+                for (int i=missions.size()-1;i>=0;i--) {
+                    Mission mission=missions.get(i);
+                    if (mission.isAccepted()) {
+                        mission_pos = mission.getLocation();
+                        distance = DistanceUtil.getDistance(mission_pos, mypos);
+                        if (distance < 30) {
+                            Toast.makeText(getApplication(), "已到达目的地", Toast.LENGTH_SHORT).show();
+                            mission.getMarker().remove();
+                            missions.remove(i);
+                            isChanged=true;
+                        }
+                    }
+                }
+                if (isChanged) updateMarker();
             }
         }
 
@@ -255,7 +383,7 @@ public class MapActivity extends AppCompatActivity implements MyOrientationListe
                 MapStatusUpdate update = MapStatusUpdateFactory.newLatLng(ll);
                 mBaiduMap.animateMapStatus(update);
                 //设置缩放级别
-                update = MapStatusUpdateFactory.zoomTo(21f);
+                update = MapStatusUpdateFactory.zoomTo(19f);
                 mBaiduMap.animateMapStatus(update);
                 isFirstLocate = false;
             }
@@ -277,6 +405,7 @@ public class MapActivity extends AppCompatActivity implements MyOrientationListe
         //在activity执行onResume时执行mMapView. onResume ()，实现地图生命周期管理
         mMapView.onResume();
         myOrientationListener.start();
+        updateMarker();
     }
 
     @Override

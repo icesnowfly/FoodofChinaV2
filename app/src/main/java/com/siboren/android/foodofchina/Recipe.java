@@ -4,22 +4,17 @@ import java.util.Date;
 import java.util.UUID;
 
 public class Recipe {
-    public static final String TABLE="recipe";
-
     private UUID mId;
-    public String UID;
     private String mTitle;
+    private String mNeedMaterial;
     private int mNum;
 
-    public static final String KEY_UID="UID";
-    public static final String KEY_mId="mId";
-    public static final String KEY_mTitle="mTitle";
-    public static final String KEY_mNum="mNum";
-
-
     public Recipe(){
-        //生成唯一ID
-        mId = UUID.randomUUID();
+        this(UUID.randomUUID());
+    }
+
+    public Recipe(UUID id){
+        mId = id;
         mNum = 0;
     }
 
@@ -41,5 +36,13 @@ public class Recipe {
 
     public void setTitle(String mTitle) {
         this.mTitle = mTitle;
+    }
+
+    public String getNeedMaterial() {
+        return mNeedMaterial;
+    }
+
+    public void setNeedMaterial(String mNeedMaterial) {
+        this.mNeedMaterial = mNeedMaterial;
     }
 }

@@ -27,7 +27,6 @@ public class RecipeListFragment extends Fragment {
         mRecipeRecyclerView = (RecyclerView) view
                 .findViewById(R.id.recipe_recycler_view);
         mRecipeRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
-
         updateUI();
         return view;
     }
@@ -46,6 +45,7 @@ public class RecipeListFragment extends Fragment {
             mAdapter = new RecipeAdapter(recipes);
             mRecipeRecyclerView.setAdapter(mAdapter);
         }else{
+            mAdapter.setRecipes(recipes);
             if (current_changed_item!=-1)
                 mAdapter.notifyItemChanged(current_changed_item);
             else mAdapter.notifyDataSetChanged();
@@ -74,14 +74,6 @@ public class RecipeListFragment extends Fragment {
             mRecipe = recipe;
             mTitleTextView.setText(mRecipe.getTitle());
             mNumTextView.setText(String.valueOf(mRecipe.getNum()));
-            mCompoundButton.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    mRecipe.setNum(mRecipe.getNum()+1);
-                    current_changed_item=position;
-                    updateUI();
-                }
-            });
         }
 
         public void setPosition(int pos){
@@ -108,6 +100,10 @@ public class RecipeListFragment extends Fragment {
             View view = layoutInflater
                     .inflate(R.layout.list_item_recipe,parent,false);
             return new RecipeHolder(view);
+        }
+
+        public void setRecipes(List<Recipe> recipes){
+            mRecipes = recipes;
         }
 
         @Override

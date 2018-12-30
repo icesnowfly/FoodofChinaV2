@@ -38,12 +38,21 @@ public class RecipeFragment extends Fragment {
     }
 
     @Override
+    public void onPause(){
+        super.onPause();
+        RecipeLab.get(getActivity())
+                .updateRecipe(mRecipe);
+    }
+
+    @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState){
         View v = inflater.inflate(R.layout.fragment_recipe,container,false);
 
         mTitleField = (TextView)v.findViewById(R.id.recipe_title);
         mTitleField.setText(mRecipe.getTitle());
+        mRecipeMaterial = (TextView)v.findViewById(R.id.recipe_material);
+        mRecipeMaterial.setText(mRecipe.getNeedMaterial());
         mRecipeNum=(TextView)v.findViewById(R.id.recipe_num);
         mRecipeNum.setText(String.valueOf(mRecipe.getNum()));
         mCompoundButton=(Button)v.findViewById(R.id.recipe_compound);

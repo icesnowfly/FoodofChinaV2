@@ -59,11 +59,8 @@
 
         <activity android:name=".LoginActivity">
         </activity>
-        <activity android:name=".MapActivity">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
+        <activity android:name=".MapActivity"
+            android:launchMode="singleTop">
         </activity>
         <activity
             android:name=".RegActivity"
@@ -75,6 +72,10 @@
         <activity
             android:name=".RecipeListActivity"
             android:parentActivityName=".MapActivity">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
         </activity>
         <activity
             android:name=".MissionListActivity"

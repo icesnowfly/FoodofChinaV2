@@ -43,7 +43,7 @@ public class RegFragment extends Fragment {
               public void onClick(View v) {
                    //String username=findViewById(R.id.reg_user).toString();
                    User user=new User();
-                   user.ID=Integer.parseInt(((EditText)getActivity().findViewById(R.id.reg_user)).getText().toString());
+                   user.name=((EditText)getActivity().findViewById(R.id.reg_user)).getText().toString();
                    user.password=((EditText)getActivity().findViewById(R.id.reg_password)).getText().toString();
                    String check_password=((EditText)getActivity().findViewById(R.id.reg_check_password)).getText().toString();
                    if (user.password.equals(check_password))

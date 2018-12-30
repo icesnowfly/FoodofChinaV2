@@ -3,7 +3,7 @@ package com.siboren.android.foodofchina;
 import java.util.Date;
 import java.util.UUID;
 
-public class Missions {
+public class Mission {
 
     public static final String TABLE="mission";
 
@@ -23,7 +23,7 @@ public class Missions {
     public static final String KEY_mDistance="mDistance";
     public static final String KEY_mSolved="mSolved";
 
-    public Missions(){
+    public Mission(){
         //生成唯一ID
         mId = UUID.randomUUID();
         mDate = new Date();

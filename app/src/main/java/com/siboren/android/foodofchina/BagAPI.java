@@ -69,4 +69,13 @@ public class BagAPI {
         int num=cursor.getInt(cursor.getColumnIndex(Bag.KEY_num));
         return num;
     }
+    public void get_reward(String uid,Item item){
+        int i=0;
+        Bag bag_temp=new Bag(uid);
+        while (item.num[i]!=0){
+            bag_temp.item_name=item.name[i];
+            bag_temp.num=item.num[i];
+            this.update(bag_temp);
+        }
+    }
 }

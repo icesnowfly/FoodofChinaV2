@@ -11,16 +11,17 @@ public class Mission implements Comparable<Mission>{
     private String mTitle;
     private Date mDate;
     private String mNeedFood;
-    private String mAward;
     private double mDistance;
     private boolean mSolved;
     private boolean mAccepted;
     private LatLng location;
-    private Marker marker;
 
     public Mission(){
-        //生成唯一ID
-        mId = UUID.randomUUID();
+        this(UUID.randomUUID());
+    }
+
+    public Mission(UUID id){
+        mId = id;
         mDate = new Date();
         mSolved = false;
         mAccepted = false;
@@ -66,14 +67,6 @@ public class Mission implements Comparable<Mission>{
         this.mSolved = solved;
     }
 
-    public String getAward() {
-        return mAward;
-    }
-
-    public void setAward(String mAward) {
-        this.mAward = mAward;
-    }
-
     public String getDistance() {
         if (mDistance>1000)
             return String.format("%.2f",mDistance/1000)+" 千米";
@@ -95,14 +88,6 @@ public class Mission implements Comparable<Mission>{
 
     public void setLocation(LatLng location) {
         this.location = location;
-    }
-
-    public Marker getMarker() {
-        return marker;
-    }
-
-    public void setMarker(Marker marker) {
-        this.marker = marker;
     }
 
     public boolean isAccepted() {

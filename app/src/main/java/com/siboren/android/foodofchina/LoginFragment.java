@@ -21,8 +21,7 @@ public class LoginFragment extends Fragment {
     private Button mLoginButton;
     private Button mRegisterButton;
     private Context mContext;
-
-    public UserAPI userapi;
+    public UserLab mUserLab;
 
 
     @Override
@@ -36,7 +35,7 @@ public class LoginFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View v = inflater.inflate(R.layout.fragment_login, container, false);
-        userapi = new UserAPI(mContext);
+        mUserLab = UserLab.get(getActivity());
         mLoginButton = (Button) v.findViewById(R.id.login_button);
         mRegisterButton = (Button) v.findViewById(R.id.register_button);
 
@@ -51,16 +50,17 @@ public class LoginFragment extends Fragment {
             public void onClick(View v) {
                 String jj = ((EditText) getActivity().findViewById(R.id.login_user)).getText().toString();
                 if (jj.length() == 0) {
+                    Toast.makeText(mContext, R.string.user_hint, Toast.LENGTH_SHORT).show();
                     return;
                 }
-                int j = userapi.login(Integer.parseInt(jj),
+                int j = mUserLab.checkLogin(jj,
                         ((EditText) getActivity().findViewById(R.id.login_password)).getText().toString());
                 if (j == 1) {
                     Intent i = MapActivity.newIntent(mContext,jj);
                     startActivity(i);
                     getActivity().onBackPressed();
                 } else {
-                    if (j == 0) {
+                    if (j == 2) {
                         Toast.makeText(mContext, R.string.wrong_password, Toast.LENGTH_SHORT).show();
                     } else {
                         Toast.makeText(mContext, R.string.null_username, Toast.LENGTH_SHORT).show();

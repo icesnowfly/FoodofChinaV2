@@ -1,23 +1,67 @@
 package com.siboren.android.foodofchina;
 
+import java.util.UUID;
+
 public class User {
-    //表名
-    public static final String TABLE="user";
+    private UUID mId;
+    private String mAccount;
+    private String mPassword;
+    private int mLevel;
+    private int mExp;
+    private int mMoney;
 
-    //表的各个域名
-    public static final String KEY_ID="id";
-    public static final String KEY_name="name";
-    public static final String KEY_password="password";
-    public static final String KEY_gender="gender";
-    public static final String KEY_level="level";
-    public static final String KEY_exp="exp";
+    public User(){
+        this(UUID.randomUUID());
+    }
 
-    //属性
-    public String ID;
-    public String name;
-    public String password;
-    public int gender;
-    public int level;
-    public int exp;
+    public User(UUID id){
+        mId = id;
+        mLevel=1;
+        mExp=0;
+        mMoney=0;
+    }
 
+    public String getAccount() {
+        return mAccount;
+    }
+
+    public void setAccount(String mAccount) {
+        this.mAccount = mAccount;
+    }
+
+    public String getPassword() {
+        return mPassword;
+    }
+
+    public void setPassword(String mPassword) {
+        this.mPassword = mPassword;
+    }
+
+    public UUID getId() {
+        return mId;
+    }
+
+    public int getLevel() {
+        return mLevel;
+    }
+
+    public void setLevel(int mLevel) {
+        this.mLevel = mLevel;
+    }
+
+    public int getExp() {
+        return mExp;
+    }
+
+    public void setExp(int mExp) {
+        this.mExp = mExp;
+    }
+
+    public int getMoney() {
+        return mMoney;
+    }
+
+    public void setMoney(int mMoney) {
+        this.mMoney = mMoney;
+    }
 }

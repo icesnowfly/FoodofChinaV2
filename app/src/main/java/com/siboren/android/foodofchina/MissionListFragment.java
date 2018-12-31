@@ -1,10 +1,8 @@
 package com.siboren.android.foodofchina;
 
 import android.content.DialogInterface;
-import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentManager;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -15,8 +13,6 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
-
-import org.w3c.dom.Text;
 
 import java.util.List;
 
@@ -54,6 +50,7 @@ public class MissionListFragment extends Fragment {
             mAdapter = new MissionListFragment.MissionAdapter(missions);
             mMissionRecyclerView.setAdapter(mAdapter);
         }else{
+            mAdapter.setMissions(missions);
             if (current_changed_item!=-1)
                 mAdapter.notifyItemChanged(current_changed_item);
             else mAdapter.notifyDataSetChanged();
@@ -68,6 +65,7 @@ public class MissionListFragment extends Fragment {
         private TextView mAwardTextView;
         private TextView mDistanceTextView;
         private Button mAcceptButton;
+        private MissionLab mMissionLab = MissionLab.get(getActivity());
 
         public MissionHolder(View itemView){
             super(itemView);
@@ -83,11 +81,11 @@ public class MissionListFragment extends Fragment {
                     itemView.findViewById(R.id.list_item_mission_distance_text_view);
         }
 
-        public void bindMission(Mission mission){
+        public void bindMission(final Mission mission){
             mMission = mission;
             mTitleTextView.setText(mMission.getTitle());
             mNeedFoodTextView.setText(mMission.getNeedFood());
-            mAwardTextView.setText(mMission.getAward());
+            mAwardTextView.setText(mMissionLab.getMissionAward(mission.getId()));
             mDistanceTextView.setText(mMission.getDistance());
             if (!mMission.isAccepted()) {
                 mAcceptButton.setText(getString(R.string.accept));
@@ -101,9 +99,12 @@ public class MissionListFragment extends Fragment {
             mAcceptButton.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
+                    current_changed_item=position;
                     if (!mMission.isAccepted()) {
 
                         mMission.setAccepted(true);
+                        mMissionLab.updateMission(mMission);
+                        updateUI();
                         Toast.makeText(getActivity(),R.string.mission_accept,Toast.LENGTH_SHORT).show();
                     }
                     else
@@ -115,15 +116,14 @@ public class MissionListFragment extends Fragment {
                             @Override
                             public void onClick(DialogInterface dialog, int which) {
                                 mMission.setAccepted(false);
-                                Toast.makeText(getActivity(),R.string.mission_cancel,Toast.LENGTH_SHORT).show();
+                                mMissionLab.updateMission(mMission);
                                 updateUI();
+                                Toast.makeText(getActivity(),R.string.mission_cancel,Toast.LENGTH_SHORT).show();
                             }
                         });
                         builder.setNegativeButton(R.string.no,null);
                         builder.create().show();
                     }
-                    current_changed_item=position;
-                    updateUI();
                 }
             });
         }
@@ -157,6 +157,10 @@ public class MissionListFragment extends Fragment {
         @Override
         public int getItemCount(){
             return mMissions.size();
+        }
+
+        public void setMissions(List<Mission> missions){
+            mMissions = missions;
         }
     }
 }

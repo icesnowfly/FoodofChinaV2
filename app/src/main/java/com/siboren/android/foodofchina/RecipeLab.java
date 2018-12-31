@@ -5,10 +5,12 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 
-import com.siboren.android.foodofchina.database.RecipeBaseHelper;
-import com.siboren.android.foodofchina.database.RecipeCursorWrapper;
-import com.siboren.android.foodofchina.database.RecipeDbSchema;
-import com.siboren.android.foodofchina.database.RecipeDbSchema.RecipeTable;
+import com.siboren.android.foodofchina.database.MissionBaseHelper;
+import com.siboren.android.foodofchina.database.MissionCursorWrapper;
+import com.siboren.android.foodofchina.database.MissionDbSchema;
+import com.siboren.android.foodofchina.database.MissionDbSchema.BagTable;
+import com.siboren.android.foodofchina.database.MissionDbSchema.MaterialTable;
+import com.siboren.android.foodofchina.database.MissionDbSchema.RecipeTable;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -29,21 +31,13 @@ public class RecipeLab {
 
     private RecipeLab(Context context){
         mContext = context.getApplicationContext();
-        mDatabase = new RecipeBaseHelper(mContext)
+        mDatabase = new MissionBaseHelper(mContext)
                 .getWritableDatabase();
-        Recipe tempRecipe = new Recipe();
-        tempRecipe.setTitle("hello");
-        tempRecipe.setNeedMaterial("fish");
-        addRecipe(tempRecipe);
-        Recipe tempRecipe2 = new Recipe();
-        tempRecipe2.setTitle("world");
-        tempRecipe2.setNeedMaterial("fish");
-        addRecipe(tempRecipe2);
     }
 
     public List<Recipe> getRecipes(){
         List<Recipe> recipes = new ArrayList<>();
-        RecipeCursorWrapper cursor = queryRecipes(null,null);
+        MissionCursorWrapper cursor = queryRecipes(null,null);
 
         try{
             cursor.moveToFirst();
@@ -54,8 +48,15 @@ public class RecipeLab {
         }finally {
             cursor.close();
         }
-
         return recipes;
+    }
+
+    public void addMaterial(UUID id,String title,int num){
+        ContentValues values = new ContentValues();
+        values.put(MaterialTable.Cols.RECIPEID,id.toString());
+        values.put(MaterialTable.Cols.TITLE,title);
+        values.put(MaterialTable.Cols.NUM, String.valueOf(num));
+        mDatabase.insert(MaterialTable.NAME,null,values);
     }
 
     public void addRecipe(Recipe r){
@@ -63,8 +64,15 @@ public class RecipeLab {
         mDatabase.insert(RecipeTable.NAME,null,values);
     }
 
+    public void insertBag(String title, int num){
+        ContentValues values = new ContentValues();
+        values.put(BagTable.Cols.TITLE,title);
+        values.put(BagTable.Cols.NUM,String.valueOf(num));
+        mDatabase.insert(BagTable.NAME,null,values);
+    }
+
     public Recipe getRecipe(UUID id){
-        RecipeCursorWrapper cursor=queryRecipes(
+        MissionCursorWrapper cursor=queryRecipes(
                 RecipeTable.Cols.UUID+"=?",
                 new String[]{id.toString()}
         );
@@ -87,6 +95,18 @@ public class RecipeLab {
                 new String[]{uuidString});
     }
 
+    public void updateBag(String title, int num){
+        ContentValues values = new ContentValues();
+        MissionCursorWrapper cursor=queryBag(BagTable.Cols.TITLE+"=?",
+                new String[]{title});
+        cursor.moveToFirst();
+        values.put(BagTable.Cols.TITLE,cursor.getString(cursor.getColumnIndex(BagTable.Cols.TITLE)));
+        values.put(BagTable.Cols.NUM,cursor.getInt(cursor.getColumnIndex(BagTable.Cols.NUM))-num);
+        mDatabase.update(BagTable.NAME,values,
+                BagTable.Cols.TITLE+"=?",
+                new String[]{title});
+    }
+
     private static ContentValues getContentValues(Recipe recipe){
         ContentValues values = new ContentValues();
         values.put(RecipeTable.Cols.UUID, recipe.getId().toString());
@@ -97,7 +117,35 @@ public class RecipeLab {
         return values;
     }
 
-    private RecipeCursorWrapper queryRecipes(String whereClause, String[] whereArgs){
+    public String getRecipeMaterial(UUID id) {
+        String s="";
+        MissionCursorWrapper cursor = queryMaterial(
+                MaterialTable.Cols.RECIPEID+"=?",
+                new String[]{id.toString()}
+        );
+        try{
+            cursor.moveToFirst();
+            String title;
+            int recNum,haveNum;
+            MissionCursorWrapper c;
+            while(!cursor.isAfterLast())
+            {
+                title = cursor.getString(cursor.getColumnIndex(MaterialTable.Cols.TITLE));
+                c = queryBag(BagTable.Cols.TITLE+"=?",new String[]{title});
+                c.moveToFirst();
+                recNum = cursor.getInt(cursor.getColumnIndex(MaterialTable.Cols.NUM));
+                haveNum = c.getInt(c.getColumnIndex(BagTable.Cols.NUM));
+                s=s+title+" "+ String.valueOf(haveNum)+"/"+String.valueOf(recNum);
+                if (!cursor.isLast()) s=s+"\n";
+                cursor.moveToNext();
+            }
+        }finally {
+            cursor.close();
+        }
+        return s;
+    }
+
+    private MissionCursorWrapper queryRecipes(String whereClause, String[] whereArgs){
         Cursor cursor = mDatabase.query(
                 RecipeTable.NAME,
                 null,
@@ -107,6 +155,85 @@ public class RecipeLab {
                 null,
                 null
         );
-        return new RecipeCursorWrapper(cursor);
+        return new MissionCursorWrapper(cursor);
+    }
+
+    private MissionCursorWrapper queryMaterial(String whereClause, String[] whereArgs){
+        Cursor cursor = mDatabase.query(
+                MaterialTable.NAME,
+                null,
+                whereClause,
+                whereArgs,
+                null,
+                null,
+                null
+        );
+        return new MissionCursorWrapper(cursor);
+    }
+
+    private MissionCursorWrapper queryBag(String whereClause, String[] whereArgs){
+        Cursor cursor = mDatabase.query(
+                BagTable.NAME,
+                null,
+                whereClause,
+                whereArgs,
+                null,
+                null,
+                null
+        );
+        return new MissionCursorWrapper(cursor);
+    }
+
+    public boolean checkRecipe(Recipe recipe){
+        MissionCursorWrapper cursor = queryMaterial(
+                MaterialTable.Cols.RECIPEID+"=?",
+                new String[]{recipe.getId().toString()}
+        );
+        boolean isAvailable=true;
+        try{
+            cursor.moveToFirst();
+            String title;
+            int recNum;
+            int haveNum;
+            MissionCursorWrapper c;
+            while(!cursor.isAfterLast()){
+                title=cursor.getString(cursor.getColumnIndex(MaterialTable.Cols.TITLE));
+                recNum=cursor.getInt(cursor.getColumnIndex(MaterialTable.Cols.NUM));
+                c = queryBag(
+                        BagTable.Cols.TITLE+"=?",
+                        new String[]{title}
+                );
+                c.moveToFirst();
+                haveNum=c.getInt(c.getColumnIndex(BagTable.Cols.NUM));
+                if (haveNum<recNum){
+                    isAvailable=false;
+                    break;
+                }
+                cursor.moveToNext();
+            }
+        }finally {
+            cursor.close();
+        }
+        return isAvailable;
+    }
+
+    public void compoundRecipe(Recipe recipe){
+        MissionCursorWrapper cursor = queryMaterial(
+                MaterialTable.Cols.RECIPEID+"=?",
+                new String[]{recipe.getId().toString()}
+        );
+        try{
+            cursor.moveToFirst();
+            String title;
+            int num;
+            while(!cursor.isAfterLast()){
+                title=cursor.getString(cursor.getColumnIndex(MaterialTable.Cols.TITLE));
+                num=cursor.getInt(cursor.getColumnIndex(MaterialTable.Cols.NUM));
+                updateBag(title,num);
+                cursor.moveToNext();
+            }
+        }finally {
+            cursor.close();
+        }
     }
 }

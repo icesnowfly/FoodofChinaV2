@@ -69,15 +69,16 @@ public class MapActivity extends AppCompatActivity implements MyOrientationListe
     private OnGetPoiSearchResultListener poiListener;
     private Button mRecipeButton,mMissionButton,mSearchButton;
     private BitmapDescriptor bitmap;
-    private MissionLab mMissionLab = MissionLab.get(this);
+    private MissionLab mMissionLab;
     private List<Mission> MissionCan = new ArrayList<>();
+    private boolean isActive=true;
 
     private Boolean isFirstLocate=true;
     private float mCurrentAccracy;
     private double mCurrentLantitude;
     private double mCurrentLongitude;
     private int mXDirection;
-    private int searchN;
+    private int searchN=0;
     public LocationClient mlocation;
     private MyLocationData.Builder builder;
     private MyOrientationListener myOrientationListener;
@@ -90,6 +91,8 @@ public class MapActivity extends AppCompatActivity implements MyOrientationListe
         SDKInitializer.initialize(getApplicationContext());
         SDKInitializer.setCoordType(CoordType.BD09LL);
         setContentView(R.layout.activity_map);
+        //初始化数据库
+        mMissionLab=MissionLab.get(getApplicationContext());
         //初始化方向传感器
         myOrientationListener = new MyOrientationListener(this);
         myOrientationListener.setOnOrientationListener(this);
@@ -106,6 +109,7 @@ public class MapActivity extends AppCompatActivity implements MyOrientationListe
             public void onClick(View v) {
                 Intent intent=new Intent(MapActivity.this,RecipeListActivity.class);
                 intent.putExtra(EXTRA_USER_ID,getIntent().getStringExtra(EXTRA_USER_ID));
+                isActive=false;
                 startActivity(intent);
             }
         });
@@ -115,6 +119,7 @@ public class MapActivity extends AppCompatActivity implements MyOrientationListe
             public void onClick(View v) {
                 Intent intent=new Intent(MapActivity.this,MissionListActivity.class);
                 intent.putExtra(EXTRA_USER_ID,getIntent().getStringExtra(EXTRA_USER_ID));
+                isActive=false;
                 startActivity(intent);
             }
         });
@@ -127,14 +132,13 @@ public class MapActivity extends AppCompatActivity implements MyOrientationListe
                     Toast.makeText(getApplication(), "任务数量已达上限！", Toast.LENGTH_SHORT).show();
                     return;
                 }
-                searchN=0;
                 Toast.makeText(getApplication(), "请稍等...", Toast.LENGTH_LONG).show();
                 LatLng point = new LatLng(mCurrentLantitude,mCurrentLongitude);
                 String key = "美食";
                 PoiNearbySearchOption nearbySearchOption = new PoiNearbySearchOption();
                 nearbySearchOption.location(point);
                 nearbySearchOption.keyword(key);
-                nearbySearchOption.radius(2000);
+                nearbySearchOption.radius(1000);
                 nearbySearchOption.pageNum(1);
                 nearbySearchOption.radiusLimit(true);
                 mPoiSearch.searchNearby(nearbySearchOption);
@@ -176,12 +180,10 @@ public class MapActivity extends AppCompatActivity implements MyOrientationListe
                         mission.setTitle(mInfo.name);
                         mission.setLocation(mPoint);
                         mission.setDistance(DistanceUtil.getDistance(mPoint, position));
-                        mission.setNeedFood("Fish");
-                        mission.setAward("money * 5000 元");
                         MissionCan.add(mission);
                     }
                     searchN++;
-                    if (searchN>=8) {
+                    if (searchN>=5) {
                         if (MissionCan.size() == 0) {
                             Toast.makeText(getApplication(), "附近没有可接受的任务！", Toast.LENGTH_SHORT).show();
                             return;
@@ -197,6 +199,7 @@ public class MapActivity extends AppCompatActivity implements MyOrientationListe
                         }
                         Toast.makeText(getApplication(), "已添加任务", Toast.LENGTH_SHORT).show();
                         MissionCan.clear();
+                        searchN=0;
                     }
                 }
             }
@@ -223,16 +226,12 @@ public class MapActivity extends AppCompatActivity implements MyOrientationListe
     }
 
     private void updateMarker(){
-        MissionLab mMissionLab = MissionLab.get(getApplicationContext());
+        mBaiduMap.clear();
         List<Mission> mMissions = mMissionLab.getMissions();
         for (Mission mMission : mMissions)
         {
             if (mMission.isAccepted()) {
-                if (mMission.getMarker() == null)
-                    setMarker(mMission);
-            } else if (mMission.getMarker() != null) {
-                mMission.getMarker().remove();
-                mMission.setMarker(null);
+                setMarker(mMission);
             }
         }
     }
@@ -244,7 +243,7 @@ public class MapActivity extends AppCompatActivity implements MyOrientationListe
                 .position(mMission.getLocation())
                 .icon(bitmap)
                 .perspective(true);
-        mMission.setMarker((Marker)mBaiduMap.addOverlay(option));
+        mBaiduMap.addOverlay(option);
     }
 
     private Bitmap getMapMarker(Bitmap bm){
@@ -349,7 +348,7 @@ public class MapActivity extends AppCompatActivity implements MyOrientationListe
                 navigateTo(bdLocation);
             }
             List<Mission> missions = mMissionLab.getMissions();
-            if (missions.size()>0) {
+            if (missions.size()>0 && isActive) {
                 LatLng mission_pos;
                 boolean isChanged=false;
                 LatLng mypos = new LatLng(mCurrentLantitude,mCurrentLongitude);
@@ -360,10 +359,14 @@ public class MapActivity extends AppCompatActivity implements MyOrientationListe
                         mission_pos = mission.getLocation();
                         distance = DistanceUtil.getDistance(mission_pos, mypos);
                         if (distance < 30) {
-                            Toast.makeText(getApplication(), "已到达目的地", Toast.LENGTH_SHORT).show();
-                            mission.getMarker().remove();
-                            missions.remove(i);
-                            isChanged=true;
+                            if (mMissionLab.checkMission(mission)) {
+                                Toast.makeText(getApplication(), "任务已完成", Toast.LENGTH_SHORT).show();
+                                mMissionLab.completeMission(mission);
+                                mMissionLab.deleteMission(mission.getId());
+                                updateMarker();
+                                missions.remove(i);
+                                isChanged = true;
+                            }
                         }
                     }
                 }
@@ -404,6 +407,7 @@ public class MapActivity extends AppCompatActivity implements MyOrientationListe
         super.onResume();
         //在activity执行onResume时执行mMapView. onResume ()，实现地图生命周期管理
         mMapView.onResume();
+        isActive=true;
         myOrientationListener.start();
         updateMarker();
     }

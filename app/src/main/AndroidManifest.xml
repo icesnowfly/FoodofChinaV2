@@ -58,6 +58,10 @@
             android:process=":remote"></service>
 
         <activity android:name=".LoginActivity">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
         </activity>
         <activity android:name=".MapActivity"
             android:launchMode="singleTop">
@@ -72,10 +76,6 @@
         <activity
             android:name=".RecipeListActivity"
             android:parentActivityName=".MapActivity">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
         </activity>
         <activity
             android:name=".MissionListActivity"

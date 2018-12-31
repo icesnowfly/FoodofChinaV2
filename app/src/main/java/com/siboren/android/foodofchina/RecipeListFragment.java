@@ -57,7 +57,6 @@ public class RecipeListFragment extends Fragment {
         private int position;
         private TextView mTitleTextView;
         private TextView mNumTextView;
-        private Button mCompoundButton;
 
         public RecipeHolder(View itemView){
             super(itemView);
@@ -66,8 +65,6 @@ public class RecipeListFragment extends Fragment {
                     itemView.findViewById(R.id.list_item_recipe_title_text_view);
             mNumTextView=(TextView)
                     itemView.findViewById(R.id.list_item_recipe_num_text_view);
-            mCompoundButton=(Button)
-                    itemView.findViewById(R.id.list_item_recipe_compound_button);
         }
 
         public void bindRecipe(Recipe recipe){

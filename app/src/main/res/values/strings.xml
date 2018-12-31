@@ -1,6 +1,6 @@
 <resources>
     <string name="app_name">料理中国</string>
-    <string name="user">账户:</string>
+    <string name="preUser">账户:</string>
     <string name="password">密码:</string>
     <string name="size1">18dp</string>
     <string name="login">登录</string>
@@ -13,7 +13,7 @@
     <string name="login_toast">登录成功！</string>
     <string name="register_toast">注册失败！</string>
     <string name="wrong_password">密码错误！</string>
-    <string name="null_username">账户不存在！</string>
+    <string name="null_username">用户名不存在！</string>
     <string name="reg_success">注册成功！</string>
     <string name="password_dif">密码不一致！</string>
     <string name="same_username">用户名已存在！</string>
@@ -40,4 +40,9 @@
     <string name="ask_mission_cancel_message">你确定要取消这一任务吗？</string>
     <string name="mission_accept">已接受任务</string>
     <string name="mission_cancel">已取消任务</string>
+    <string name="exp">经验值</string>
+    <string name="money">元宝</string>
+    <string name="allMaterial">所有食材</string>
+    <string name="NotEnoughMaterial">食材不足！</string>
+    <string name="NotCompleteTable">请填写完整！</string>
 </resources>

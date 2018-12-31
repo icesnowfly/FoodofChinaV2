@@ -7,6 +7,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import java.util.Locale;
 import java.util.UUID;
@@ -20,6 +21,7 @@ public class RecipeFragment extends Fragment {
     private TextView mRecipeMaterial;
     private Button mCompoundButton;
     private TextView mRecipeNum;
+    private RecipeLab mRecipeLab = RecipeLab.get(getActivity());
 
     public static RecipeFragment newInstance(UUID recipeID){
         Bundle args=new Bundle();
@@ -34,14 +36,13 @@ public class RecipeFragment extends Fragment {
     public void onCreate(Bundle savedInstanceState){
         super.onCreate(savedInstanceState);
         UUID recipeId = (UUID) getArguments().getSerializable(ARG_RECIPE_ID);
-        mRecipe = RecipeLab.get(getActivity()).getRecipe(recipeId);
+        mRecipe = mRecipeLab.getRecipe(recipeId);
     }
 
     @Override
     public void onPause(){
         super.onPause();
-        RecipeLab.get(getActivity())
-                .updateRecipe(mRecipe);
+        mRecipeLab.updateRecipe(mRecipe);
     }
 
     @Override
@@ -52,15 +53,20 @@ public class RecipeFragment extends Fragment {
         mTitleField = (TextView)v.findViewById(R.id.recipe_title);
         mTitleField.setText(mRecipe.getTitle());
         mRecipeMaterial = (TextView)v.findViewById(R.id.recipe_material);
-        mRecipeMaterial.setText(mRecipe.getNeedMaterial());
+        mRecipeMaterial.setText(mRecipeLab.getRecipeMaterial(mRecipe.getId()));
         mRecipeNum=(TextView)v.findViewById(R.id.recipe_num);
         mRecipeNum.setText(String.valueOf(mRecipe.getNum()));
         mCompoundButton=(Button)v.findViewById(R.id.recipe_compound);
         mCompoundButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                mRecipe.setNum(mRecipe.getNum()+1);
-                mRecipeNum.setText(String.valueOf(mRecipe.getNum()));
+                if (mRecipeLab.checkRecipe(mRecipe)) {
+                    mRecipe.setNum(mRecipe.getNum() + 1);
+                    mRecipeLab.compoundRecipe(mRecipe);
+                    mRecipeNum.setText(String.valueOf(mRecipe.getNum()));
+                    mRecipeMaterial.setText(mRecipeLab.getRecipeMaterial(mRecipe.getId()));
+                }
+                else Toast.makeText(getActivity(),R.string.NotEnoughMaterial,Toast.LENGTH_SHORT).show();
             }
         });
         return v;
